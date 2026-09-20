@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Sixteen Windows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F2F1EB;
+    --surface: #FFFFFF;
+    --surface-2: #E9EAE2;
+    --ink: #1F2622;
+    --muted: #66706A;
+    --line: #D5D8CF;
+    --sage: #7C9E89;
+    --sage-deep: #48685A;
+    --sage-tint: #E3EBE5;
+    --mat: #FBFAF5;
+    --mat-shadow: rgba(0,0,0,0.12);
+    --frame: #8FAE9A;
+    --frame-edge: #6F8E7B;
+    --danger: #B4553F;
+    --focus: #3E7D5E;
+    --shadow: 0 14px 40px rgba(31,38,34,0.14);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #151916;
+      --surface: #1D231F;
+      --surface-2: #262D28;
+      --ink: #ECEEE7;
+      --muted: #9AA39C;
+      --line: #333B35;
+      --sage: #8DB39B;
+      --sage-deep: #B7D2C1;
+      --sage-tint: #24302A;
+      --mat: #F3F1E9;
+      --mat-shadow: rgba(0,0,0,0.5);
+      --frame: #6E8F7B;
+      --frame-edge: #55735F;
+      --danger: #E07E67;
+      --focus: #9FD1B4;
+      --shadow: 0 14px 40px rgba(0,0,0,0.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #151916;
+    --surface: #1D231F;
+    --surface-2: #262D28;
+    --ink: #ECEEE7;
+    --muted: #9AA39C;
+    --line: #333B35;
+    --sage: #8DB39B;
+    --sage-deep: #B7D2C1;
+    --sage-tint: #24302A;
+    --mat: #F3F1E9;
+    --mat-shadow: rgba(0,0,0,0.5);
+    --frame: #6E8F7B;
+    --frame-edge: #55735F;
+    --danger: #E07E67;
+    --focus: #9FD1B4;
+    --shadow: 0 14px 40px rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Figtree", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    padding-inline: clamp(16px, 3vw, 40px);
+    padding-block: 20px 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "Figtree", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px;
+    max-width: 1280px; margin: 0 auto 20px;
+  }
+  header.top h1 { font-size: clamp(26px, 3vw, 34px); font-weight: 700; letter-spacing: -0.01em; }
+  header.top .spec {
+    color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 16px;
+  }
+  header.top .spec b { color: var(--ink); font-weight: 500; }
+
+  .app {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start;
+  }
+  @media (max-width: 900px) { .app { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Frame preview */
+  .stage {
+    position: relative;
+    display: grid; place-items: center;
+    background: var(--surface-2);
+    border-radius: 6px;
+    padding: clamp(12px, 3vw, 36px);
+    min-height: 320px;
+  }
+  .stage.drop { outline: 2px dashed var(--sage); outline-offset: -8px; }
+  .frame {
+    position: relative;
+    width: 100%;
+    max-width: min(100%, 640px);
+    aspect-ratio: 12 / 17.125;
+    background: linear-gradient(135deg, var(--frame), var(--frame-edge));
+    padding: 4.2%;
+    box-shadow: var(--shadow);
+    touch-action: none;
+  }
+  .frame.landscape { aspect-ratio: 17.125 / 12; max-width: min(100%, 840px); padding: 3%; }
+  .mat {
+    width: 100%; height: 100%;
+    background: var(--mat);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 6px 14px var(--mat-shadow);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    padding: 6% 5.5%;
+    gap: 4.5% 6%;
+  }
+  .frame.landscape .mat { padding: 3.5% 6%; gap: 3% 4.5%; }
+
+  .tile {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    width: 100%; max-height: 100%;
+    margin: auto;
+    background: #E7E5DC;
+    overflow: hidden;
+    cursor: grab;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+  }
+  .frame.landscape .tile { aspect-ratio: 3 / 2; }
+  .tile canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tile .win {
+    position: absolute;
+    left: 8.33%; top: 5.73%; width: 83.33%; height: 88.54%;
+    box-shadow: 0 0 0 200px rgba(251,250,245,0.86);
+    pointer-events: none;
+  }
+  .frame.landscape .tile .win { left: 5.73%; top: 8.33%; width: 88.54%; height: 83.33%; }
+  .tile.empty { cursor: pointer; background: #ECEAE2; }
+  .tile.empty .win { box-shadow: 0 0 0 200px rgba(251,250,245,0.55); }
+  .tile.empty::after {
+    content: "+"; position: absolute; inset: 0; display: grid; place-items: center;
+    font: 500 26px/1 "Bricolage Grotesque", sans-serif; color: #9BA49C;
+  }
+  .tile.selected { box-shadow: 0 0 0 3px var(--focus); z-index: 2; }
+  .tile.target { box-shadow: 0 0 0 3px var(--sage); }
+  .tile .grip {
+    position: absolute; right: 4px; top: 4px; z-index: 3;
+    width: 22px; height: 22px; border-radius: 4px; border: 0;
+    background: rgba(31,38,34,0.72); color: #fff;
+    display: none; place-items: center; padding: 0;
+    cursor: grab; touch-action: none;
+  }
+  .tile.selected .grip { display: grid; }
+  .tile .grip svg { width: 14px; height: 14px; }
+  .tile .num {
+    position: absolute; left: 4px; top: 4px; z-index: 3;
+    font: 500 10px/1 "IBM Plex Mono", monospace;
+    padding: 3px 5px; border-radius: 3px;
+    background: rgba(251,250,245,0.85); color: #3C443F;
+    pointer-events: none;
+  }
+  .ghost {
+    position: fixed; z-index: 50; pointer-events: none;
+    width: 70px; aspect-ratio: 2/3; border-radius: 3px; overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35); opacity: 0.92;
+    transform: translate(-50%, -50%) rotate(-3deg);
+  }
+  .ghost canvas { width: 100%; height: 100%; display: block; }
+
+  /* Rail */
+  .rail { display: grid; gap: 14px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px 18px; display: grid; gap: 10px;
+  }
+  .card h2 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .card h2 .step {
+    font: 500 11px/1 "IBM Plex Mono", monospace; letter-spacing: 0.06em;
+    color: var(--sage-deep); background: var(--sage-tint); padding: 4px 6px; border-radius: 3px;
+  }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .card p b { color: var(--ink); font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn {
+    border: 1px solid var(--line); background: var(--surface); border-radius: 6px;
+    padding: 8px 12px; font-weight: 500; font-size: 14px; line-height: 1.2;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { border-color: var(--sage); }
+  .btn.primary { background: var(--sage-deep); color: var(--ground); border-color: var(--sage-deep); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.danger { color: var(--danger); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn svg { width: 15px; height: 15px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; padding: 7px 11px; font-size: 13px; font-weight: 500; }
+  .seg button[aria-pressed="true"] { background: var(--sage-tint); color: var(--sage-deep); }
+  .meter { font-size: 13px; color: var(--muted); }
+  .meter b { color: var(--ink); }
+
+  .ctl { display: grid; gap: 10px; }
+  .ctl label { font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+  .ctl input[type=range] { width: 100%; accent-color: var(--sage-deep); }
+  .arrows { display: grid; grid-template-columns: repeat(3, 36px); grid-template-rows: repeat(2, 32px); gap: 4px; }
+  .arrows .btn { padding: 0; justify-content: center; }
+  .arrows .u { grid-column: 2; grid-row: 1; }
+  .arrows .l { grid-column: 1; grid-row: 2; }
+  .arrows .d { grid-column: 2; grid-row: 2; }
+  .arrows .r { grid-column: 3; grid-row: 2; }
+  .hint { font-size: 12.5px; color: var(--muted); }
+
+  ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+  ol.steps li::marker { color: var(--sage-deep); font-weight: 600; }
+  .dims { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: 13px; }
+  .dims dt { color: var(--muted); }
+  .dims dd { margin: 0; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+    background: var(--ink); color: var(--ground); padding: 10px 14px; border-radius: 6px; font-size: 14px;
+    box-shadow: var(--shadow); z-index: 60; max-width: min(92vw, 520px);
+  }
+  .modal {
+    position: fixed; inset: 0; z-index: 70; background: rgba(15,18,16,0.7);
+    display: grid; place-items: center; padding: 16px;
+  }
+  .modal .panel {
+    background: var(--surface); border-radius: 8px; padding: 18px; max-width: 560px; width: 100%;
+    display: grid; gap: 12px; max-height: 92vh; overflow: auto;
+  }
+  .modal img { max-width: 100%; max-height: 60vh; display: block; margin: 0 auto; border: 1px solid var(--line); }
+  @media (prefers-reduced-motion: no-preference) {
+    .tile { transition: box-shadow 120ms ease; }
+  }
+</style>
+
+<header class="top">
+  <h1>Sixteen Windows</h1>
+  <div class="spec">
+    <span>Umbra Instant · <b>16 openings</b></span>
+    <span>Opening <b class="mono">2 × 3³⁄₁₆ in</b></span>
+    <span>Print tile <b class="mono">2.4 × 3.6 in</b></span>
+    <span>Overlap <b class="mono">≈ ³⁄₁₆ in</b> per side</span>
+  </div>
+</header>
+
+<main class="app">
+  <section class="stage" id="stage" aria-label="Frame preview">
+    <div class="frame" id="frame">
+      <div class="mat" id="mat"></div>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <div class="card">
+      <h2><span class="step">01</span>Add photos</h2>
+      <div class="row">
+        <button class="btn primary" id="addBtn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+          Add photos
+        </button>
+        <div class="seg" role="group" aria-label="Photo orientation">
+          <button id="orientP" aria-pressed="true">Portrait</button>
+          <button id="orientL" aria-pressed="false">Landscape</button>
+        </div>
+      </div>
+      <div class="meter"><b id="count">0</b> of 16 windows filled. Drop photos on the frame, or tap an empty window.</div>
+      <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      <input type="file" id="slotInput" accept="image/*" hidden>
+    </div>
+
+    <div class="card" id="editCard">
+      <h2><span class="step">02</span>Arrange and crop</h2>
+      <p id="editHint">Tap a window to select it. Drag inside it to reposition the photo. Hidden edges are shown faded under the mat.</p>
+      <div class="ctl" id="ctl" hidden>
+        <label for="zoom">Zoom <span class="mono" id="zoomVal">1.00×</span></label>
+        <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+        <div class="row">
+          <button class="btn" id="rotBtn" title="Rotate 90°">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2v3h-3"/></svg>
+            Rotate
+          </button>
+          <button class="btn" id="resetBtn">Reset crop</button>
+          <button class="btn" id="replaceBtn">Replace</button>
+          <button class="btn danger" id="removeBtn">Remove</button>
+        </div>
+        <div class="row" style="align-items:flex-start; gap:14px;">
+          <div class="arrows" aria-label="Move this photo to a neighbouring window">
+            <button class="btn u" data-mv="0,-1" title="Swap with the window above">↑</button>
+            <button class="btn l" data-mv="-1,0" title="Swap with the window to the left">←</button>
+            <button class="btn d" data-mv="0,1" title="Swap with the window below">↓</button>
+            <button class="btn r" data-mv="1,0" title="Swap with the window to the right">→</button>
+          </div>
+          <div class="hint">Swap with a neighbour, or drag the corner handle on the selected window onto another window.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">03</span>Print at London Drugs</h2>
+      <div class="seg" role="group" aria-label="Print size">
+        <button id="sheetOne" aria-pressed="true">One 12 × 18</button>
+        <button id="sheetTwo" aria-pressed="false">Two 8 × 12</button>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="exportBtn">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v8m0 0L5 7m3 3 3-3M3 13h10"/></svg>
+          <span id="exportLabel">Download 12 × 18 print file</span>
+        </button>
+        <span class="hint mono" id="exportMeta">3600 × 5400 px · 300 dpi · JPEG</span>
+      </div>
+      <ol class="steps">
+        <li>Upload at <b>photolab.londondrugs.com</b> under Prints and Enlargements. Order the size you picked above, quantity one per file. Pearl finish has less glare behind glass; glossy is fine too. Pick up in store.</li>
+        <li>Cut along the thin grey lines with a paper cutter or scissors. You get 16 tiles, each <b>2.4 × 3.6 in</b>, about ³⁄₁₆ in bigger than the opening on every side. Cut on the line or a hair outside it, never inside.</li>
+        <li>Lay the mat face down. Place each tile face down over its opening and tape the top edge to the back of the mat. Each tile has its number printed in the top-left corner, in the strip the mat hides.</li>
+      </ol>
+      <dl class="dims">
+        <dt>Frame outside</dt><dd class="mono">17⅛ × 12 × ⅝ in (43.5 × 30.8 × 1.6 cm)</dd>
+        <dt>Mat opening</dt><dd class="mono">2 × 3³⁄₁₆ in, measured (label says 1.7 × 2.3)</dd>
+        <dt>Tile numbering</dt><dd>Left to right, top to bottom, as shown on the preview</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <p>Your photos and layout are saved in this browser only, so you can come back and finish later on the same device. Nothing is uploaded anywhere until you send the file to the photolab yourself.</p>
+      <div class="row"><button class="btn danger" id="clearBtn">Start over</button></div>
+    </div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  const SLOTS = 16, COLS = 4, DPI = 300;
+  const TILE_IN = { w: 2.4, h: 3.6 };      // print tile (cut size)
+  const WIN_IN  = { w: 2, h: 3.1875 };     // mat opening, measured
+  const MAX_SIDE = 2400;                   // stored photo longest side (px)
+  // Sheet plans: paper size in inches (portrait), grid per sheet.
+  const SHEETS = {
+    one: { label: '12 × 18', paper: { w: 12, h: 18 }, cols: 4, rows: 4, files: 1 },
+    two: { label: '8 × 12',  paper: { w: 8,  h: 12 }, cols: 3, rows: 3, files: 2 },
+  };
+
+  const state = { orient: 'portrait', sheet: 'one', slots: Array.from({ length: SLOTS }, () => null), selected: null };
+  const photos = new Map(); // id -> { blob, img, w, h }
+
+  const $ = (s) => document.querySelector(s);
+  const mat = $('#mat'), frame = $('#frame'), stage = $('#stage');
+  const fileInput = $('#fileInput'), slotInput = $('#slotInput');
+  const ctl = $('#ctl'), zoom = $('#zoom'), zoomVal = $('#zoomVal');
+  let slotTarget = null; // index for slotInput
+  let downloads = null, downloadsReady = false;
+
+  // ---------- IndexedDB persistence ----------
+  const dbp = new Promise((res) => {
+    try {
+      const r = indexedDB.open('sixteen-windows', 1);
+      r.onupgradeneeded = () => { r.result.createObjectStore('kv'); r.result.createObjectStore('photos'); };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => res(null);
+    } catch { res(null); }
+  });
+  async function idb(store, mode, fn) {
+    const db = await dbp; if (!db) return null;
+    return new Promise((res) => {
+      try {
+        const tx = db.transaction(store, mode); const st = tx.objectStore(store);
+        const rq = fn(st); tx.oncomplete = () => res(rq && rq.result); tx.onerror = () => res(null);
+      } catch { res(null); }
+    });
+  }
+  let saveTimer;
+  function saveState() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => idb('kv', 'readwrite', (s) => s.put({ orient: state.orient, sheet: state.sheet, slots: state.slots }, 'state')), 250);
+  }
+
+  // ---------- Photo import ----------
+  function loadImage(blob) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(blob); const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
+      img.src = url;
+    });
+  }
+  async function importFile(file) {
+    const src = await loadImage(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(src.naturalWidth, src.naturalHeight));
+    const w = Math.round(src.naturalWidth * scale), h = Math.round(src.naturalHeight * scale);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(src, 0, 0, w, h);
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
+    const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    photos.set(id, { blob, img: c, w, h });
+    idb('photos', 'readwrite', (s) => s.put(blob, id));
+    return id;
+  }
+  function newSlot(id) { return { id, zoom: 1, ox: 0, oy: 0, rot: 0 }; }
+
+  async function addFiles(files, targetIndex = null) {
+    const list = [...files].filter((f) => f.type.startsWith('image/'));
+    if (!list.length) return;
+    let placed = 0;
+    if (targetIndex !== null) {
+      try { dropPhoto(state.slots[targetIndex]); state.slots[targetIndex] = newSlot(await importFile(list[0])); placed = 1; }
+      catch { toast('That file could not be read as a photo.'); }
+      list.shift();
+      state.selected = targetIndex;
+    }
+    for (const f of list) {
+      const i = state.slots.findIndex((s) => !s);
+      if (i < 0) { toast('All 16 windows are full. Remove one to add more.'); break; }
+      try { state.slots[i] = newSlot(await importFile(f)); placed++; }
+      catch { toast('One file could not be read as a photo.'); }
+    }
+    if (placed) toast(placed === 1 ? 'Photo added.' : placed + ' photos added.');
+    renderAll(); saveState();
+  }
+  function dropPhoto(slot) {
+    if (!slot) return;
+    const stillUsed = state.slots.some((s) => s && s !== slot && s.id === slot.id);
+    if (!stillUsed) { photos.delete(slot.id); idb('photos', 'readwrite', (s) => s.delete(slot.id)); }
+  }
+
+  // ---------- Geometry (shared by preview and export) ----------
+  function tileAspect() { return state.orient === 'portrait' ? TILE_IN.w / TILE_IN.h : TILE_IN.h / TILE_IN.w; }
+  function layout(slot, photo, W, H) {
+    const swap = slot.rot % 180 !== 0;
+    const iw = swap ? photo.h : photo.w, ih = swap ? photo.w : photo.h;
+    const s = Math.max(W / iw, H / ih) * slot.zoom;
+    const dw = iw * s, dh = ih * s;
+    const maxX = Math.max(0, (dw - W) / 2) / W, maxY = Math.max(0, (dh - H) / 2) / H;
+    slot.ox = Math.max(-maxX, Math.min(maxX, slot.ox));
+    slot.oy = Math.max(-maxY, Math.min(maxY, slot.oy));
+    return { s, cx: W / 2 + slot.ox * W, cy: H / 2 + slot.oy * H };
+  }
+  function drawTile(ctx, slot, W, H) {
+    const photo = photos.get(slot.id); if (!photo) return;
+    const { s, cx, cy } = layout(slot, photo, W, H);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+    ctx.translate(cx, cy); ctx.rotate(slot.rot * Math.PI / 180);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(photo.img, -photo.w * s / 2, -photo.h * s / 2, photo.w * s, photo.h * s);
+    ctx.restore();
+  }
+
+  // ---------- Preview ----------
+  const tiles = [];
+  function buildTiles() {
+    mat.innerHTML = ''; tiles.length = 0;
+    for (let i = 0; i < SLOTS; i++) {
+      const t = document.createElement('div'); t.className = 'tile'; t.dataset.i = i; t.tabIndex = 0;
+      t.setAttribute('role', 'button'); t.setAttribute('aria-label', 'Window ' + (i + 1));
+      const c = document.createElement('canvas');
+      const win = document.createElement('div'); win.className = 'win';
+      const num = document.createElement('span'); num.className = 'num'; num.textContent = i + 1;
+      const grip = document.createElement('button'); grip.className = 'grip'; grip.title = 'Drag to another window to swap';
+      grip.setAttribute('aria-label', 'Drag to swap with another window');
+      grip.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 5h12M2 8h12M2 11h12"/></svg>';
+      t.append(c, win, num, grip); mat.appendChild(t); tiles.push(t);
+    }
+  }
+  const ro = new ResizeObserver(() => renderAll());
+  function renderTile(i) {
+    const t = tiles[i], slot = state.slots[i], c = t.firstChild;
+    t.classList.toggle('empty', !slot);
+    t.classList.toggle('selected', state.selected === i);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = Math.max(1, Math.round(t.clientWidth * dpr)), H = Math.max(1, Math.round(t.clientHeight * dpr));
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    const ctx = c.getContext('2d'); ctx.clearRect(0, 0, W, H);
+    if (slot) drawTile(ctx, slot, W, H);
+  }
+  function renderAll() {
+    frame.classList.toggle('landscape', state.orient === 'landscape');
+    for (let i = 0; i < SLOTS; i++) renderTile(i);
+    $('#count').textContent = state.slots.filter(Boolean).length;
+    const plan = SHEETS[state.sheet], portrait = state.orient === 'portrait';
+    const pw = (portrait ? plan.paper.w : plan.paper.h) * DPI, ph = (portrait ? plan.paper.h : plan.paper.w) * DPI;
+    $('#exportMeta').textContent = (plan.files > 1 ? plan.files + ' files · ' : '') + pw + ' × ' + ph + ' px · 300 dpi · JPEG';
+    $('#exportLabel').textContent = plan.files > 1 ? 'Download ' + plan.files + ' × ' + plan.label + ' print files' : 'Download ' + plan.label + ' print file';
+    $('#sheetOne').setAttribute('aria-pressed', state.sheet === 'one');
+    $('#sheetTwo').setAttribute('aria-pressed', state.sheet === 'two');
+    $('#orientP').setAttribute('aria-pressed', state.orient === 'portrait');
+    $('#orientL').setAttribute('aria-pressed', state.orient === 'landscape');
+    renderControls();
+  }
+  function renderControls() {
+    const slot = state.selected !== null ? state.slots[state.selected] : null;
+    ctl.hidden = !slot;
+    $('#editHint').textContent = slot
+      ? 'Window ' + (state.selected + 1) + ' selected. Drag inside it to reposition. Scroll or use the slider to zoom.'
+      : 'Tap a window to select it. Drag inside it to reposition the photo. Hidden edges are shown faded under the mat.';
+    if (slot) { zoom.value = slot.zoom; zoomVal.textContent = slot.zoom.toFixed(2) + '×'; }
+  }
+  function select(i) { state.selected = i; renderAll(); }
+
+  // ---------- Pointer interactions: pan, swap-drag, tap ----------
+  let pan = null, swap = null, ghost = null;
+  mat.addEventListener('pointerdown', (e) => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    const i = +t.dataset.i;
+    if (e.target.closest('.grip')) {
+      e.preventDefault(); swap = { from: i, over: null, moved: false, x: e.clientX, y: e.clientY };
+      mat.setPointerCapture(e.pointerId); return;
+    }
+    if (!state.slots[i]) return; // empty windows open the picker on click (needs a full tap on touch devices)
+    select(i);
+    pan = { i, x: e.clientX, y: e.clientY, W: t.clientWidth, H: t.clientHeight, moved: false };
+    t.setPointerCapture(e.pointerId);
+  });
+  mat.addEventListener('pointermove', (e) => {
+    if (pan) {
+      const slot = state.slots[pan.i]; if (!slot) return;
+      const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+      if (Math.abs(dx) + Math.abs(dy) > 2) pan.moved = true;
+      slot.ox += dx / pan.W; slot.oy += dy / pan.H; pan.x = e.clientX; pan.y = e.clientY;
+      renderTile(pan.i);
+    } else if (swap) {
+      if (!swap.moved && Math.hypot(e.clientX - swap.x, e.clientY - swap.y) > 4) {
+        swap.moved = true;
+        ghost = document.createElement('div'); ghost.className = 'ghost';
+        if (state.orient === 'landscape') ghost.style.aspectRatio = '3/2';
+        const c = document.createElement('canvas'); c.width = 140; c.height = Math.round(140 / tileAspect());
+        if (state.slots[swap.from]) drawTile(c.getContext('2d'), state.slots[swap.from], c.width, c.height);
+        ghost.appendChild(c); document.body.appendChild(ghost);
+      }
+      if (ghost) { ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px'; }
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const t = el && el.closest ? el.closest('.tile') : null;
+      const over = t ? +t.dataset.i : null;
+      if (over !== swap.over) {
+        tiles.forEach((x) => x.classList.remove('target'));
+        if (over !== null && over !== swap.from) tiles[over].classList.add('target');
+        swap.over = over;
+      }
+    }
+  });
+  function endPointer() {
+    if (pan) { if (pan.moved) saveState(); pan = null; }
+    if (swap) {
+      tiles.forEach((x) => x.classList.remove('target'));
+      if (ghost) { ghost.remove(); ghost = null; }
+      if (swap.moved && swap.over !== null && swap.over !== swap.from) doSwap(swap.from, swap.over);
+      swap = null;
+    }
+  }
+  mat.addEventListener('click', (e) => {
+    const t = e.target.closest('.tile'); if (!t || e.target.closest('.grip')) return;
+    const i = +t.dataset.i;
+    if (!state.slots[i]) { slotTarget = i; slotInput.click(); }
+  });
+  mat.addEventListener('pointerup', endPointer);
+  mat.addEventListener('pointercancel', endPointer);
+  mat.addEventListener('wheel', (e) => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    const i = +t.dataset.i; if (!state.slots[i] || state.selected !== i) return;
+    e.preventDefault();
+    const slot = state.slots[i];
+    slot.zoom = Math.max(1, Math.min(3, slot.zoom * (e.deltaY < 0 ? 1.05 : 1 / 1.05)));
+    renderTile(i); renderControls(); saveState();
+  }, { passive: false });
+  mat.addEventListener('keydown', (e) => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    const i = +t.dataset.i;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); state.slots[i] ? select(i) : (slotTarget = i, slotInput.click()); }
+  });
+  function doSwap(a, b) {
+    [state.slots[a], state.slots[b]] = [state.slots[b], state.slots[a]];
+    state.selected = b; renderAll(); saveState();
+  }
+
+  // ---------- Controls ----------
+  $('#addBtn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
+  slotInput.addEventListener('change', () => { if (slotTarget !== null) addFiles(slotInput.files, slotTarget); slotTarget = null; slotInput.value = ''; });
+  $('#orientP').addEventListener('click', () => { state.orient = 'portrait'; renderAll(); saveState(); });
+  $('#orientL').addEventListener('click', () => { state.orient = 'landscape'; renderAll(); saveState(); });
+  $('#sheetOne').addEventListener('click', () => { state.sheet = 'one'; renderAll(); saveState(); });
+  $('#sheetTwo').addEventListener('click', () => { state.sheet = 'two'; renderAll(); saveState(); });
+  zoom.addEventListener('input', () => {
+    const slot = state.slots[state.selected]; if (!slot) return;
+    slot.zoom = +zoom.value; zoomVal.textContent = slot.zoom.toFixed(2) + '×'; renderTile(state.selected);
+  });
+  zoom.addEventListener('change', saveState);
+  $('#rotBtn').addEventListener('click', () => {
+    const slot = state.slots[state.selected]; if (!slot) return;
+    slot.rot = (slot.rot + 90) % 360; renderTile(state.selected); saveState();
+  });
+  $('#resetBtn').addEventListener('click', () => {
+    const slot = state.slots[state.selected]; if (!slot) return;
+    slot.zoom = 1; slot.ox = 0; slot.oy = 0; slot.rot = 0; renderAll(); saveState();
+  });
+  $('#replaceBtn').addEventListener('click', () => { slotTarget = state.selected; slotInput.click(); });
+  $('#removeBtn').addEventListener('click', () => {
+    const i = state.selected; if (i === null || !state.slots[i]) return;
+    dropPhoto(state.slots[i]); state.slots[i] = null; renderAll(); saveState();
+  });
+  document.querySelectorAll('[data-mv]').forEach((b) => b.addEventListener('click', () => {
+    const i = state.selected; if (i === null) return;
+    const [dx, dy] = b.dataset.mv.split(',').map(Number);
+    const x = i % COLS + dx, y = Math.floor(i / COLS) + dy;
+    if (x < 0 || x >= COLS || y < 0 || y >= SLOTS / COLS) return;
+    doSwap(i, y * COLS + x);
+  }));
+  const clearBtn = $('#clearBtn'); let clearArmed = null;
+  clearBtn.addEventListener('click', async () => {
+    if (!clearArmed) {
+      clearBtn.textContent = 'Tap again to remove all 16';
+      clearArmed = setTimeout(() => { clearArmed = null; clearBtn.textContent = 'Start over'; }, 4000);
+      return;
+    }
+    clearTimeout(clearArmed); clearArmed = null; clearBtn.textContent = 'Start over';
+    state.slots.fill(null); state.selected = null; photos.clear();
+    await idb('photos', 'readwrite', (s) => s.clear()); renderAll(); saveState();
+    toast('Cleared. Your original files on your device are untouched.');
+  });
+
+  // Drag and drop files
+  ['dragenter', 'dragover'].forEach((ev) => stage.addEventListener(ev, (e) => { e.preventDefault(); stage.classList.add('drop'); }));
+  ['dragleave', 'drop'].forEach((ev) => stage.addEventListener(ev, (e) => { e.preventDefault(); stage.classList.remove('drop'); }));
+  stage.addEventListener('drop', (e) => {
+    const t = e.target.closest ? e.target.closest('.tile') : null;
+    addFiles(e.dataTransfer.files, t ? +t.dataset.i : null);
+  });
+
+  // ---------- Export ----------
+  // Renders every sheet for the chosen plan. Tiles are centred on the paper so the
+  // lab's edge trim (a few percent) lands in the white margin, not on a photo.
+  function renderSheets() {
+    const plan = SHEETS[state.sheet], portrait = state.orient === 'portrait';
+    const tw = (portrait ? TILE_IN.w : TILE_IN.h) * DPI, th = (portrait ? TILE_IN.h : TILE_IN.w) * DPI;
+    const pw = (portrait ? plan.paper.w : plan.paper.h) * DPI, ph = (portrait ? plan.paper.h : plan.paper.w) * DPI;
+    const cols = plan.cols, rows = plan.rows, per = cols * rows;
+    const ox = Math.round((pw - cols * tw) / 2), oy = Math.round((ph - rows * th) / 2);
+    const sheets = [];
+    for (let f = 0; f < plan.files; f++) {
+      const c = document.createElement('canvas'); c.width = pw; c.height = ph;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, pw, ph);
+      let any = false;
+      for (let k = 0; k < per; k++) {
+        const i = f * per + k; if (i >= SLOTS) break;
+        const slot = state.slots[i]; if (!slot) continue;
+        any = true;
+        const x = ox + (k % cols) * tw, y = oy + Math.floor(k / cols) * th;
+        ctx.save(); ctx.translate(x, y); drawTile(ctx, slot, tw, th);
+        // Tile number in the hidden top-left strip (mat covers ~60 px at 300 dpi).
+        ctx.font = '500 22px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle';
+        const label = String(i + 1), lw = ctx.measureText(label).width + 12;
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(8, 8, lw, 28);
+        ctx.fillStyle = '#555'; ctx.fillText(label, 14, 22);
+        ctx.restore();
+      }
+      // Cut lines: thin grey on every tile boundary, running to the paper edge.
+      ctx.strokeStyle = '#9A9A9A'; ctx.lineWidth = 2; ctx.beginPath();
+      for (let k = 0; k <= cols; k++) { const x = ox + k * tw; ctx.moveTo(x, 0); ctx.lineTo(x, ph); }
+      for (let k = 0; k <= rows; k++) { const y = oy + k * th; ctx.moveTo(0, y); ctx.lineTo(pw, y); }
+      ctx.stroke();
+      // Footer note in the bottom margin.
+      ctx.fillStyle = '#888'; ctx.font = '400 26px "Figtree", sans-serif'; ctx.textBaseline = 'alphabetic';
+      const note = 'Sixteen Windows · sheet ' + (f + 1) + ' of ' + plan.files + ' · tiles 2.4 × 3.6 in · cut on the grey lines';
+      if (oy > 40) ctx.fillText(note, ox, ph - Math.round(oy / 2) + 10);
+      sheets.push({ canvas: c, any, name: 'sixteen-windows-' + plan.label.replace(/\s/g, '') + '-' + state.orient + (plan.files > 1 ? '-sheet' + (f + 1) : '') + '.jpg' });
+    }
+    return sheets;
+  }
+  const exportBtn = $('#exportBtn');
+  exportBtn.addEventListener('click', async () => {
+    if (!state.slots.some(Boolean)) { toast('Add at least one photo first.'); return; }
+    const empty = state.slots.filter((s) => !s).length;
+    if (empty) toast(empty + ' of the 16 windows are empty and will print as blank white tiles.');
+    exportBtn.disabled = true;
+    try {
+      const sheets = renderSheets();
+      const files = [];
+      for (const s of sheets) files.push({ name: s.name, blob: await new Promise((r) => s.canvas.toBlob(r, 'image/jpeg', 0.94)) });
+      const inArtifactRuntime = !!(window.claude && typeof window.claude.use === 'function');
+      if (!inArtifactRuntime) {
+        // Ordinary web hosting: a plain browser download works.
+        for (const f of files) {
+          const a = document.createElement('a'); const url = URL.createObjectURL(f.blob);
+          a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 30000);
+          await new Promise((r) => setTimeout(r, 400));
+        }
+        toast(files.length > 1 ? 'Both sheets downloaded. Order one 8 × 12 print of each.' : 'Downloaded. Order one 12 × 18 print of this file.');
+      } else if (downloads) {
+        let saved = 0;
+        for (const f of files) {
+          try { await downloads.save({ filename: f.name, data: f.blob }); saved++; }
+          catch (err) {
+            if (err && err.code === 'declined') { toast('Download cancelled.'); break; }
+            if (err && err.code === 'rate_limited') { toast('A download prompt is already open. Try again in a moment.'); break; }
+            showFallback(files); return;
+          }
+        }
+        if (saved === files.length) toast(files.length > 1 ? 'Both sheets saved. Order one 8 × 12 print of each.' : 'Saved. Order one 12 × 18 print of this file.');
+      } else showFallback(files);
+    } finally { exportBtn.disabled = false; }
+  });
+  function showFallback(files) {
+    const m = document.createElement('div'); m.className = 'modal';
+    const panel = document.createElement('div'); panel.className = 'panel';
+    const h = document.createElement('h2'); h.textContent = files.length > 1 ? 'Save the print files' : 'Save the print file';
+    const p = document.createElement('p'); p.textContent = 'Right-click (or long-press) each image and choose "Save image as…", then upload the saved file to the photolab.';
+    panel.append(h, p);
+    files.forEach((f) => {
+      const cap = document.createElement('p'); cap.className = 'mono'; cap.textContent = f.name;
+      const img = document.createElement('img'); img.alt = 'Print sheet';
+      const fr = new FileReader(); fr.onload = () => { img.src = fr.result; }; fr.readAsDataURL(f.blob);
+      panel.append(cap, img);
+    });
+    const close = document.createElement('button'); close.className = 'btn'; close.textContent = 'Close';
+    close.addEventListener('click', () => m.remove());
+    panel.append(close); m.appendChild(panel); document.body.appendChild(m);
+  }
+
+  // ---------- Toast ----------
+  let toastEl, toastTimer;
+  function toast(msg) {
+    if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'toast'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+    toastEl.textContent = msg; toastEl.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { toastEl.hidden = true; }, 3200);
+  }
+
+  // ---------- Boot ----------
+  async function boot() {
+    buildTiles(); ro.observe(mat);
+    const saved = await idb('kv', 'readonly', (s) => s.get('state'));
+    if (saved && Array.isArray(saved.slots)) {
+      state.orient = saved.orient === 'landscape' ? 'landscape' : 'portrait';
+      state.sheet = saved.sheet === 'two' ? 'two' : 'one';
+      const ids = [...new Set(saved.slots.filter(Boolean).map((s) => s.id))];
+      await Promise.all(ids.map(async (id) => {
+        const blob = await idb('photos', 'readonly', (s) => s.get(id));
+        if (!blob) return;
+        try { const img = await loadImage(blob); photos.set(id, { blob, img, w: img.naturalWidth, h: img.naturalHeight }); } catch {}
+      }));
+      state.slots = saved.slots.slice(0, SLOTS).map((s) => (s && photos.has(s.id) ? { id: s.id, zoom: +s.zoom || 1, ox: +s.ox || 0, oy: +s.oy || 0, rot: +s.rot || 0 } : null));
+      while (state.slots.length < SLOTS) state.slots.push(null);
+    }
+    renderAll();
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('downloads').then((d) => { downloads = d; downloadsReady = true; }).catch(() => {});
+    }
+  }
+  boot();
+})();
+</script>
+
+</body>
+</html>
