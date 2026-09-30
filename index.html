@@ -312,7 +312,7 @@
             <button class="btn d" data-mv="0,1" title="Swap with the window below">↓</button>
             <button class="btn r" data-mv="1,0" title="Swap with the window to the right">→</button>
           </div>
-          <div class="hint">Swap with a neighbour, or drag the corner handle on the selected window onto another window.</div>
+          <div class="hint">Swap with a neighbour, or drag the photo out of its window and drop it on another.</div>
         </div>
       </div>
     </div>
@@ -515,8 +515,8 @@
     const slot = state.selected !== null ? state.slots[state.selected] : null;
     ctl.hidden = !slot;
     $('#editHint').textContent = slot
-      ? 'Window ' + (state.selected + 1) + ' selected. Drag inside it to reposition. Scroll or use the slider to zoom.'
-      : 'Tap a window to select it. Drag inside it to reposition the photo. Hidden edges are shown faded under the mat.';
+      ? 'Window ' + (state.selected + 1) + ' selected. Zoom in, then drag inside it to reposition. Drag it onto another window to swap the two.'
+      : 'Tap a window to select it. Zoom in and drag to reposition the photo, or drag it onto another window to swap. Faded edges hide under the mat.';
     if (slot) { zoom.value = slot.zoom; zoomVal.textContent = slot.zoom.toFixed(2) + '×'; }
   }
   function select(i) { state.selected = i; renderAll(); }
@@ -532,17 +532,34 @@
     }
     if (!state.slots[i]) return; // empty windows open the picker on click (needs a full tap on touch devices)
     select(i);
-    pan = { i, x: e.clientX, y: e.clientY, W: t.clientWidth, H: t.clientHeight, moved: false };
+    pan = { i, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, W: t.clientWidth, H: t.clientHeight, moved: false, dist: 0 };
     t.setPointerCapture(e.pointerId);
   });
+  let hintShown = false;
   mat.addEventListener('pointermove', (e) => {
     if (pan) {
       const slot = state.slots[pan.i]; if (!slot) return;
-      const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
-      if (Math.abs(dx) + Math.abs(dy) > 2) pan.moved = true;
-      slot.ox += dx / pan.W; slot.oy += dy / pan.H; pan.x = e.clientX; pan.y = e.clientY;
-      renderTile(pan.i);
-    } else if (swap) {
+      const r = tiles[pan.i].getBoundingClientRect();
+      const outside = e.clientX < r.left - 14 || e.clientX > r.right + 14 || e.clientY < r.top - 14 || e.clientY > r.bottom + 14;
+      if (outside) {
+        // Dragged out of the window: turn the gesture into a swap drag.
+        swap = { from: pan.i, over: null, moved: false, x: pan.x0, y: pan.y0 };
+        pan = null;
+      } else {
+        const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+        pan.dist += Math.abs(dx) + Math.abs(dy);
+        const bx = slot.ox, by = slot.oy;
+        slot.ox += dx / pan.W; slot.oy += dy / pan.H; pan.x = e.clientX; pan.y = e.clientY;
+        renderTile(pan.i); // clamps ox/oy
+        if (slot.ox !== bx || slot.oy !== by) pan.moved = true;
+        if (!pan.moved && pan.dist > 40 && !hintShown) {
+          hintShown = true;
+          toast('This photo already fills its window. Zoom in to reposition it, or drag it onto another window to swap.');
+        }
+        return;
+      }
+    }
+    if (swap) {
       if (!swap.moved && Math.hypot(e.clientX - swap.x, e.clientY - swap.y) > 4) {
         swap.moved = true;
         ghost = document.createElement('div'); ghost.className = 'ghost';
