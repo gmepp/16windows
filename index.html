@@ -139,7 +139,7 @@
 
   .tile {
     position: relative;
-    aspect-ratio: 2 / 3;
+    aspect-ratio: 32 / 51;
     width: 100%; max-height: 100%;
     margin: auto;
     background: #E7E5DC;
@@ -147,15 +147,15 @@
     cursor: grab;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
   }
-  .frame.landscape .tile { aspect-ratio: 3 / 2; }
+  .frame.landscape .tile { aspect-ratio: 51 / 32; }
   .tile canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .tile .win {
     position: absolute;
-    left: 8.33%; top: 5.73%; width: 83.33%; height: 88.54%;
+    left: 7.5%; top: 13.92%; width: 85%; height: 72.16%;
     box-shadow: 0 0 0 200px rgba(251,250,245,0.86);
     pointer-events: none;
   }
-  .frame.landscape .tile .win { left: 5.73%; top: 8.33%; width: 88.54%; height: 83.33%; }
+  .frame.landscape .tile .win { left: 13.92%; top: 7.5%; width: 72.16%; height: 85%; }
   .tile.empty { cursor: pointer; background: #ECEAE2; }
   .tile.empty .win { box-shadow: 0 0 0 200px rgba(251,250,245,0.55); }
   .tile.empty::after {
@@ -182,7 +182,7 @@
   }
   .ghost {
     position: fixed; z-index: 50; pointer-events: none;
-    width: 70px; aspect-ratio: 2/3; border-radius: 3px; overflow: hidden;
+    width: 70px; aspect-ratio: 32/51; border-radius: 3px; overflow: hidden;
     box-shadow: 0 10px 24px rgba(0,0,0,0.35); opacity: 0.92;
     transform: translate(-50%, -50%) rotate(-3deg);
   }
@@ -259,9 +259,8 @@
   <h1>Sixteen Windows</h1>
   <div class="spec">
     <span>Umbra Instant · <b>16 openings</b></span>
-    <span>Opening <b class="mono">2 × 3³⁄₁₆ in</b></span>
-    <span>Print tile <b class="mono">2.4 × 3.6 in</b></span>
-    <span>Overlap <b class="mono">≈ ³⁄₁₆ in</b> per side</span>
+    <span>Cut each photo to <b class="mono">2 × 3³⁄₁₆ in</b></span>
+    <span>Mat shows <b class="mono">1.7 × 2.3 in</b></span>
   </div>
 </header>
 
@@ -324,7 +323,7 @@
         <button id="sheetTwo" aria-pressed="false">8 × 12</button>
         <button id="sheetPairs" aria-pressed="false">4 × 6 pairs</button>
       </div>
-      <p>One 12 × 18 holds all 16. Two 8 × 12 sheets hold 9 and 7. A 4 × 6 holds two tiles, so a partial set costs only as many cheap prints as it needs.</p>
+      <p>One 12 × 18 holds all 16. Two 8 × 12 sheets hold 9 and 7. A 4 × 6 holds two tiles, so a partial set costs only as many cheap prints as it needs. Tiles are printed at their final cut size, 2 × 3³⁄₁₆ in.</p>
       <div class="row">
         <button class="btn primary" id="exportBtn">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v8m0 0L5 7m3 3 3-3M3 13h10"/></svg>
@@ -334,12 +333,13 @@
       </div>
       <ol class="steps">
         <li>Upload at <b>photolab.londondrugs.com</b> and order the size you picked above, quantity one per file. 4 × 6 is under Prints; 8 × 12 and 12 × 18 are under Enlargements. Pearl finish has less glare behind glass; glossy is fine too. Pick up in store.</li>
-        <li>Cut along the thin grey lines with a paper cutter or scissors. Each tile is <b>2.4 × 3.6 in</b>, about ³⁄₁₆ in bigger than the opening on every side. Cut on the line or a hair outside it, never inside. Only filled windows are printed, packed in order.</li>
-        <li>Lay the mat face down. Place each tile face down over its opening and tape the top edge to the back of the mat. Each tile has its number printed in the top-left corner, in the strip the mat hides.</li>
+        <li>Cut along the thin grey lines with a paper cutter or scissors. Each tile is exactly <b>2 × 3³⁄₁₆ in</b>, the size of the template cut-out. Cut on the line or a hair inside it so the tile drops into place. Only filled windows are printed, packed in order.</li>
+        <li>Set each tile into its cut-out on the template, picture facing the glass. The front mat shows the middle 1.7 × 2.3 in. Each tile has its number printed in the top-left corner, inside the strip the mat hides.</li>
       </ol>
       <dl class="dims">
         <dt>Frame outside</dt><dd class="mono">17⅛ × 12 × ⅝ in (43.5 × 30.8 × 1.6 cm)</dd>
-        <dt>Mat opening</dt><dd class="mono">2 × 3³⁄₁₆ in, measured (label says 1.7 × 2.3)</dd>
+        <dt>Template cut-out</dt><dd class="mono">2 × 3³⁄₁₆ in, measured</dd>
+        <dt>Visible through mat</dt><dd class="mono">1.7 × 2.3 in (4.6 × 5.8 cm)</dd>
         <dt>Tile numbering</dt><dd>Left to right, top to bottom, as shown on the preview</dd>
       </dl>
     </div>
@@ -354,8 +354,8 @@
 <script>
 (() => {
   const SLOTS = 16, COLS = 4, DPI = 300;
-  const TILE_IN = { w: 2.4, h: 3.6 };      // print tile (cut size)
-  const WIN_IN  = { w: 2, h: 3.1875 };     // mat opening, measured
+  const TILE_IN = { w: 2, h: 3.1875 };     // print tile = the template cut-out, measured 2 × 3 3/16 in
+  const WIN_IN  = { w: 1.7, h: 2.3 };      // what the front mat shows (label size)
   const MAX_SIDE = 2400;                   // stored photo longest side (px)
   // Sheet plans: paper size in inches (portrait), grid per sheet.
   // Only filled windows are printed, packed in order, so a partial set never wastes a sheet.
@@ -563,7 +563,7 @@
       if (!swap.moved && Math.hypot(e.clientX - swap.x, e.clientY - swap.y) > 4) {
         swap.moved = true;
         ghost = document.createElement('div'); ghost.className = 'ghost';
-        if (state.orient === 'landscape') ghost.style.aspectRatio = '3/2';
+        if (state.orient === 'landscape') ghost.style.aspectRatio = "51/32";
         const c = document.createElement('canvas'); c.width = 140; c.height = Math.round(140 / tileAspect());
         if (state.slots[swap.from]) drawTile(c.getContext('2d'), state.slots[swap.from], c.width, c.height);
         ghost.appendChild(c); document.body.appendChild(ghost);
@@ -673,7 +673,7 @@
   // lab's edge trim (a few percent) lands in the white margin, not on a photo.
   function sheetGeometry() {
     const plan = SHEETS[state.sheet], portrait = state.orient === 'portrait';
-    const tw = (portrait ? TILE_IN.w : TILE_IN.h) * DPI, th = (portrait ? TILE_IN.h : TILE_IN.w) * DPI;
+    const tw = Math.round((portrait ? TILE_IN.w : TILE_IN.h) * DPI), th = Math.round((portrait ? TILE_IN.h : TILE_IN.w) * DPI);
     const pw = (portrait ? plan.paper.w : plan.paper.h) * DPI, ph = (portrait ? plan.paper.h : plan.paper.w) * DPI;
     const cols = portrait ? plan.cols : plan.rows, rows = portrait ? plan.rows : plan.cols, per = cols * rows;
     const filled = state.slots.map((s, i) => (s ? i : -1)).filter((i) => i >= 0);
@@ -695,11 +695,11 @@
         any = true;
         const x = ox + (k % cols) * tw, y = oy + Math.floor(k / cols) * th;
         ctx.save(); ctx.translate(x, y); drawTile(ctx, slot, tw, th);
-        // Tile number in the hidden top-left strip (mat covers ~60 px at 300 dpi).
-        ctx.font = '500 22px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle';
-        const label = String(i + 1), lw = ctx.measureText(label).width + 12;
-        ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(8, 8, lw, 28);
-        ctx.fillStyle = '#555'; ctx.fillText(label, 14, 22);
+        // Tile number in the hidden top-left strip (mat covers 45 px at the sides at 300 dpi).
+        ctx.font = '500 16px "IBM Plex Mono", monospace'; ctx.textBaseline = 'middle';
+        const label = String(i + 1), lw = ctx.measureText(label).width + 10;
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(6, 6, lw, 22);
+        ctx.fillStyle = '#555'; ctx.fillText(label, 11, 17);
         ctx.restore();
       }
       // Cut lines: thin grey on every tile boundary, running to the paper edge.
@@ -709,7 +709,7 @@
       ctx.stroke();
       // Footer note in the bottom margin.
       ctx.fillStyle = '#888'; ctx.font = '400 26px "Figtree", sans-serif'; ctx.textBaseline = 'alphabetic';
-      const note = 'Sixteen Windows · sheet ' + (f + 1) + ' of ' + files + ' · tiles 2.4 × 3.6 in · cut on the grey lines';
+      const note = 'Sixteen Windows · sheet ' + (f + 1) + ' of ' + files + ' · tiles 2 × 3-3/16 in · cut on the grey lines';
       if (oy > 100) ctx.fillText(note, ox, ph - Math.round(oy / 2) + 10);
       sheets.push({ canvas: c, any, name: 'sixteen-windows-' + plan.label.replace(/\s/g, '') + '-' + state.orient + (files > 1 ? '-sheet' + (f + 1) : '') + '.jpg' });
     }
